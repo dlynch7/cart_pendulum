@@ -291,7 +291,7 @@ g_ss = sym('g_ss',[2*numel(q),1],'real'); % control vector field
 %   input).
 
 temp_drift = simplify(-Minv*(C*dq + G));
-temp_ctrl = simplify(Minv*[u;0]);
+temp_ctrl = simplify(Minv*[1;0]);
 
 % Build state-space representation:
 for i = 1:numel(q)
@@ -325,7 +325,9 @@ x_eq = [x_cart_eq; theta_pend_eq; dx_cart_eq; dtheta_pend_eq];
 
 % Step 1 of Taylor series approximation is to compute Jacobians:
 f_ss_jac = jacobian(f_ss,x); % Jacobian of the drift vector field
-g_ss_jac = jacobian(g_ss,u); % Jacobian of the control vector field
+g_ss_jac = jacobian(g_ss*u,u); % Jacobian of the control vector field
+% Note: g_ss_jac = g_ss because the nonlinear state-space dynamics are
+% control-affine.
 
 % Evaluate Jacobians at the upright equilibrium:
 A = simplify(subs(f_ss_jac,x,x_eq));
