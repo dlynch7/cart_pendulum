@@ -33,10 +33,11 @@ function params = init_params
     params.viz.colors.tracers.cart_com = 'r';
     params.viz.colors.tracers.pend_com = 'g';
     params.viz.colors.tracers.pend_tip = 'b';
+    params.viz.axis_lims = [-3,3,-2,2];
     
     % parameters related to simulating (integrating) the dynamics forward
     % in time:
-    params.sim.ICs.x_cart = 0;      % initial cart position
+    params.sim.ICs.x_cart = -1;      % initial cart position
     params.sim.ICs.theta_pend = 0.9*pi/2;  % initial pendulum angle
     params.sim.ICs.dx_cart = 0;     % initial cart velocity
     params.sim.ICs.dtheta_pend = 0; % initial pendulum rotational velocity
