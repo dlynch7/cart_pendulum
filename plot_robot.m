@@ -41,16 +41,12 @@ addRequired(p,'cart_pend_params', ...
     @(params) ~isempty(params));
 %      2b: optional inputs:
 addParameter(p, 'new_fig', false); % if true, plot will be on a new figure
-%       optional name-value pairs to trace different parts of the robot:
-addParameter(p, 'trace_cart_com', false);
-addParameter(p, 'trace_pend_com', false);
-addParameter(p, 'trace_pend_tip', false);
 
 % Step 3: parse the inputs:
 parse(p, q, params, varargin{:});
 
 % Verification: display the results of parsing:
-disp(p.Results)
+% disp(p.Results)
 
 
 %% Compute the 4 corners of the cart, clockwise from top left corner
@@ -130,25 +126,16 @@ if p.Results.new_fig
     figure;
 end
 
-hold on;
 fill(cart.curr.corners(1,:),cart.curr.corners(2,:),params.viz.colors.cart);
-axis equal;
+hold on;
 fill(pend.curr.corners(1,:),pend.curr.corners(2,:),params.viz.colors.pend);
 plot(pend.curr.com.x,pend.curr.com.y,'o','MarkerSize',20,...
-    'MarkerFaceColor',params.viz.colors.pend_com);
-if p.Results.trace_cart_com
-    plot(cart.curr.com.x,cart.curr.com.y,'o','MarkerSize',5,...
-        'MarkerFaceColor',params.viz.colors.tracers.cart_com);
-end
-if p.Results.trace_pend_com
-    plot(pend.curr.com.x,pend.curr.com.y,'o','MarkerSize',5,...
-        'MarkerFaceColor',params.viz.colors.tracers.pend_com);
-end
-if p.Results.trace_pend_tip
-    plot(pend.curr.tip.x,pend.curr.tip.y,'o','MarkerSize',5,...
-        'MarkerFaceColor',params.viz.colors.tracers.pend_tip);
-end
+    'MarkerFaceColor',params.viz.colors.pend_com,...
+    'MarkerEdgeColor',params.viz.colors.pend_com);
 hold off;
+
+axis(params.viz.axis_lims);
+daspect([1 1 1]) % no distortion
 
 xlabel('$x$');
 ylabel('$y$');
