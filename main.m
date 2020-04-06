@@ -72,7 +72,7 @@ buf = [buf,'\n'];
 fprintf('LQR: K = \n');
 fprintf(buf,K');
 
-% we could ask what  are the eigenvalues of the closed-loop system:
+% we could ask what are the eigenvalues of the closed-loop system:
 eig(A - B*K)
 
 % add K to our struct "params":
