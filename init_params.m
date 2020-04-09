@@ -46,4 +46,6 @@ function params = init_params
     % parameters related to control
     params.control.inverted.K = zeros(4,4); % state feedback gain matrix
     params.control.swingup.K = zeros(4,4); % state feedback gain matrix
+    params.control.swingup.Q = eye(4); % state error cost
+    params.control.swingup.R = 1; % control effort cost
 end
