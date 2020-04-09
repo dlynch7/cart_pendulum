@@ -357,6 +357,76 @@ end
 fprintf('\t...done. The controllability matrix of the linearized model has rank %d.\n',...
     rank(Co));
 
+%% Optimal swingup control pt. 1: control Hamiltonian
+fprintf('\tBuilding control Hamiltonian for LQR swingup...\n');
+syms H real % the control Hamiltonian
+syms lambda1 lambda2 lambda3 lambda4 real % elements of the costate vector
+Q_swingup = sym('Q_swingup',[numel(x),numel(x)],'real'); % state error cost
+R_swingup = sym('R_swingup',[numel(u),numel(u)],'real'); % control cost
+
+% the costate vector (same size & shape as the state vector):
+lambda = [lambda1;lambda2;lambda3;lambda4];
+
+% objective function integrand (swingup with quadratic cost):
+running_cost = sym(0.5)*x'*Q_swingup*x + sym(0.5)*u'*R_swingup*u;
+
+% control Hamiltonian:
+H = running_cost + lambda'*(f_ss + g_ss*u);
+
+fprintf('\t...done building control Hamiltonian for LQR swingup.\n');
+
+%% Optimal swingup control pt. 2: necessary optimality conditions (PMP)
+fprintf('\tApplying Pontryagin''s Maximum Principle to LQR swingup...\n');
+
+% Solve del(H)/del(u)=0 for u in terms of x and lambda:
+del_H_del_u = simplify(diff(H,u))==0;
+u_PMP = solve(del_H_del_u,u);
+
+% Warning: Solutions are valid under the following conditions: 
+%   m_pend^2*r_com_pend^2*sin(theta_pend)^2 ~= ...
+%       I_pend*m_cart + I_pend*m_pend +m_pend^2*r_com_pend^2 + ...
+%       m_cart*m_pend*r_com_pend^2
+%   To include parameters and conditions in the solution, specify the 
+%   'ReturnConditions' value as 'true'. 
+
+% State dynamics (under PMP):
+state_ode_RHS = sym('state_ode_RHS',[4,1],'real');
+for i = 1:4
+    state_ode_RHS(i) = simplify(diff(H,lambda(i)));
+    state_ode_RHS(i) = simplify(subs(state_ode_RHS(i), u, u_PMP));
+end
+
+% Costate dynamics (under PMP):
+costate_ode_RHS = sym('costate_ode_RHS',[4,1],'real');
+for i = 1:4
+    costate_ode_RHS(i) = -simplify(diff(H,x(i)));
+    costate_ode_RHS(i) = simplify(subs(costate_ode_RHS(i), u, u_PMP));
+end
+
+fprintf('\t...done Applying Pontryagin''s Maximum Principle to LQR swingup.\n');
+
+%% Optimal swingup control pt. 3: concatenate state and costate ODEs (TPVBP)
+fprintf('\tExporting TPBVP dynamics...\n');
+
+tpbvp_ode = sym('tpbvp_ode',[2*numel(x),1],'real');
+
+for i = 1:numel(x)
+    tpbvp_ode(i) = state_ode_RHS(i);
+    tpbvp_ode(i+numel(x)) = costate_ode_RHS(i);
+end
+
+matlabFunction(tpbvp_ode,'File','autogen_tpbvp_ode');
+
+fprintf('\t...done exporting TPBVP dynamics.\n');
+
+%% Optimal swingup control pt. 4: derive gradient of TPBVP dynamics
+fprintf('Exporting gradient of TPBVP dynamics...\n');
+z = [x; lambda];
+
+grad_tpbvp_ode = jacobian(tpbvp_ode,z);
+matlabFunction(grad_tpbvp_ode,'File','autogen_grad_tpbvp_ode');
+fprintf('\t...done exporting gradient of TPBVP dynamics.\n');
+
 %% Done!
 fprintf('...done deriving cart-pendulum equations.\n');
 end
