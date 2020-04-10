@@ -59,7 +59,7 @@ parse(p, t,x,u_ff,params,varargin{:});
         case 'passive'
             u_fb = 0;
         case 'stabilize'
-            x_ref = [0;pi/2;0;0];
+            x_ref = params.control.inverted.x_eq;
             u_fb = -params.control.inverted.K*(x - x_ref);
         case 'swingup'
             u_fb = 0;
