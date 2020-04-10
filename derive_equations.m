@@ -405,27 +405,60 @@ end
 
 fprintf('\t...done Applying Pontryagin''s Maximum Principle to LQR swingup.\n');
 
-%% Optimal swingup control pt. 3: concatenate state and costate ODEs (TPVBP)
-fprintf('\tExporting TPBVP dynamics...\n');
+%% Optimal swingup control pt. 3: fixed-time TPVBP dynamics
+fprintf('\tExporting fixed-time TPBVP dynamics...\n');
 
-tpbvp_ode = sym('tpbvp_ode',[2*numel(x),1],'real');
+% the "state" vector of the fixed-time TPBVP is the robot state + costate:
+fixed_time_tpbvp_ode = sym('fixed_time_tpbvp_ode',[2*numel(x),1],'real');
 
 for i = 1:numel(x)
-    tpbvp_ode(i) = state_ode_RHS(i);
-    tpbvp_ode(i+numel(x)) = costate_ode_RHS(i);
+    fixed_time_tpbvp_ode(i) = state_ode_RHS(i);
+    fixed_time_tpbvp_ode(i+numel(x)) = costate_ode_RHS(i);
 end
 
-matlabFunction(tpbvp_ode,'File','autogen_tpbvp_ode');
+matlabFunction(fixed_time_tpbvp_ode,'File','autogen_fixed_time_tpbvp_ode');
 
-fprintf('\t...done exporting TPBVP dynamics.\n');
+fprintf('\t...done exporting fixed-time TPBVP dynamics.\n');
 
-%% Optimal swingup control pt. 4: derive gradient of TPBVP dynamics
-fprintf('Exporting gradient of TPBVP dynamics...\n');
-z = [x; lambda];
+%% Optimal swingup control pt. 4: gradient of fixed-time TPBVP dynamics
+fprintf('\tExporting gradient of fixed-time TPBVP dynamics...\n');
+z_fixed_time = [x; lambda];
 
-grad_tpbvp_ode = jacobian(tpbvp_ode,z);
-matlabFunction(grad_tpbvp_ode,'File','autogen_grad_tpbvp_ode');
-fprintf('\t...done exporting gradient of TPBVP dynamics.\n');
+grad_tpbvp_fixed_time_ode = jacobian(fixed_time_tpbvp_ode,z_fixed_time);
+matlabFunction(grad_tpbvp_fixed_time_ode,'File',...
+    'autogen_grad_tpbvp_fixed_time_ode');
+fprintf('\t...done exporting gradient of fixed-time TPBVP dynamics.\n');
+
+%% Optimal swingup control pt. 5: free-time TPBVP dynamics
+fprintf('\tExporting free-time TPBVP dynamics...\n');
+
+% The free-time TPBVP "state" vector has one additional element that
+% corresponds to the time scaling variable rho:
+syms rho real
+free_time_tpbvp_ode = sym('free_time_tpbvp_ode',[2*numel(x)+1,1],'real');
+
+for i = 1:numel(fixed_time_tpbvp_ode)
+    free_time_tpbvp_ode(i) = simplify(rho*fixed_time_tpbvp_ode(i));
+end
+
+% The ODE corresponding to rho is trivial (i.e., d(rho)/d(tau) = 0) and the
+% corresponding boundary condition is rho(tau=1) = T, where T is the free
+% terminal time. The TPBVP solver will solve for T.
+free_time_tpbvp_ode(end) = 0;
+
+matlabFunction(free_time_tpbvp_ode,'File','autogen_free_time_tpbvp_ode');
+
+fprintf('\t...done exporting free-time TPBVP dynamics.\n');
+%% Optimal swingup control pt. 6: gradient of free-time TPBVP dynamics
+fprintf('\tExporting gradient of fixed-time TPBVP dynamics...\n');
+
+z_free_time = [x; lambda; rho];
+
+grad_tpbvp_free_time_ode = jacobian(free_time_tpbvp_ode,z_free_time);
+matlabFunction(grad_tpbvp_free_time_ode,'File',...
+    'autogen_grad_tpbvp_free_time_ode');
+
+fprintf('\t...done exporting gradient of fixed-time TPBVP dynamics.\n');
 
 %% Done!
 fprintf('...done deriving cart-pendulum equations.\n');
