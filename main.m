@@ -99,4 +99,45 @@ animate_robot(xsim_stabilize(1:2,:),params,'trace_cart_com',true,...
     'trace_pend_com',true,'trace_pend_tip',true,'video',true);
 fprintf('Done passive simulation.\n');
 
+%% Use optimal control to find a swingup trajectory by solving a TPBVP
+
+% Set up the TPBVP:
+opts = bvpset('RelTol',0.1,'AbsTol',0.1*ones(1,9),'Stats','on',...
+    'FJacobian',@(t,z) grad_tpbvp_ode(t,z,params));
+
+% initial guess: configuration changes linearly in time, roughly constant
+% velocities, costate ???
+tmesh = linspace(0, params.BCs.T, params.control.swingup.TPBVP.Nmesh); % time
+
+% initial guess (robot state)
+z_init(1,:) = linspace(x_IC(1),...
+                       params.control.inverted.x_eq(1),...
+                       params.control.swingup.TPBVP.Nmesh);
+z_init(2,:) = linspace(x_IC(2),...
+                       params.control.inverted.x_eq(2),...
+                       params.control.swingup.TPBVP.Nmesh);
+z_init(3,:) = [x_IC(3), diff(z_init(1,1:params.control.swingup.TPBVP.Nmesh-1)) params.control.inverted.x_eq(3)];
+% z_init(3,:) = zeros(1,params.control.swingup.TPBVP.Nmesh);
+z_init(4,:) = [x_IC(4), diff(z_init(2,1:params.control.swingup.TPBVP.Nmesh-1)), params.control.inverted.x_eq(4)];
+% z_init(4,:) = zeros(1,params.control.swingup.TPBVP.Nmesh);
+
+% initial guess (robot costate):
+z_init(5,:) = zeros(1,Nmesh);
+z_init(6,:) = zeros(1,Nmesh);
+z_init(7,:) = zeros(1,Nmesh);
+z_init(8,:) = zeros(1,Nmesh);
+
+% initial guess (terminal time):
+z_init(9,:) = ones(1,Nmesh);
+
+solinit.x = tmesh;
+solinit.y = z_init;
+
+% Solve the TPBVP:
+sol4c = bvp4c(@(t,z) tpbvp_ode(t,z,params), @(t,z) tpbvp_bc(t,z,params), ...
+    solinit, opts);
+% sol5c = bvp5c();
+
+
+
 end
