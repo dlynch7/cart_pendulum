@@ -95,7 +95,7 @@ elseif ((numel(z0)==9) && (numel(zT)==9)) % free-time problem
     res(8) = zT(4) - params.control.swingup.TPBVP.xT(4);
     
     % PMP's free-time transversality condition is H(T) = 0:
-    u_PMP = control_PMP(x,lambda,params); % compute u using PMP
+    u_PMP = control_PMP(zT(1:4),zT(5:8),params); % compute u using PMP
     res(9) = control_Hamiltonian(zT(1:4),zT(5:8),u_PMP,params);
     
 else % z has invalid dimensions
