@@ -8,7 +8,9 @@
 %   running cost
 %       x'*Q*x + u'*R*u
 %
-%   *the gradient with respect to
+%   *the gradient with respect to z, which is an 8x1 column vector
+%   (fixed-time TPBVP) or a 9x1 column vector (free-time TPBVP). z is
+%   defined below in the "Inputs" section of the Description.
 %
 % Inputs:
 %   t: (scalar) time (required by MATLAB's numerical integrators/solvers)
