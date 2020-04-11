@@ -27,7 +27,7 @@
 %
 % Outputs:
 %   dz: the right-hand side of the system of 1st-order ODEs that govern the
-%       TPBVP dynamics. dz has same shape as z (8x1)
+%       TPBVP dynamics. dz has same shape as z (8x1 or 9x1)
 
 function dz = tpbvp_ode(t,z,params)
 
