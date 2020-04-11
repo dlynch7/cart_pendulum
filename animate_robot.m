@@ -118,6 +118,7 @@ end
                 hold off;
             end
         end
+        drawnow;
         
         if p.Results.video
             M(i) = getframe(fig_handle);
