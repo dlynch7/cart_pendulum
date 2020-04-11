@@ -44,11 +44,13 @@ function params = init_params
     params.sim.dt = 0.05;           % simulation timestep
     
     % parameters related to control
-    params.control.inverted.x_eq = [0,pi/2,0,0]; % inverted equilibrium
+    params.control.inverted.x_eq = [0;pi/2;0;0]; % unstable equilibrium
     params.control.inverted.K = zeros(4,4); % state feedback gain matrix
     params.control.swingup.energy_shaping.K = zeros(4,4); % state feedback gain matrix
     params.control.swingup.TPBVP.Q = eye(4); % state error cost
     params.control.swingup.TPBVP.R = 1; % control effort cost
-    params.control.swingup.TPBVP.Nmesh = 10; % 
+    params.control.swingup.TPBVP.Nmesh = 10; % resolution of BVP solver mesh
+    params.control.swingup.TPBVP.x0 = [0;-pi/2;0;0]; % stable equilibrium
+    params.control.swingup.TPBVP.xT = [0;pi/2;0;0]; % unstable equilibrium
     
 end
