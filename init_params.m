@@ -51,6 +51,6 @@ function params = init_params
     params.control.swingup.TPBVP.R = 1; % control effort cost
     params.control.swingup.TPBVP.Nmesh = 10; % resolution of BVP solver mesh
     params.control.swingup.TPBVP.x0 = [0;-pi/2;0;0]; % stable equilibrium
-    params.control.swingup.TPBVP.xT = [0;pi/2;0;0]; % unstable equilibrium
+    params.control.swingup.TPBVP.xT = [0;pi/2;0.0;0.0]; % unstable equilibrium
     
 end
