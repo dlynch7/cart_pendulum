@@ -107,8 +107,6 @@ opts = bvpset('RelTol',0.1,'AbsTol',0.1*ones(1,9),'Stats','on',...
 
 % initial guess: configuration changes linearly in time, roughly constant
 % velocities, costate ???
-tmesh = linspace(0, params.BCs.T, params.control.swingup.TPBVP.Nmesh); % time
-
 % initial guess (robot state)
 z_init(1,:) = linspace(x_IC(1),...
                        params.control.inverted.x_eq(1),...
@@ -122,19 +120,22 @@ z_init(4,:) = [x_IC(4), diff(z_init(2,1:params.control.swingup.TPBVP.Nmesh-1)), 
 % z_init(4,:) = zeros(1,params.control.swingup.TPBVP.Nmesh);
 
 % initial guess (robot costate):
-z_init(5,:) = zeros(1,Nmesh);
-z_init(6,:) = zeros(1,Nmesh);
-z_init(7,:) = zeros(1,Nmesh);
-z_init(8,:) = zeros(1,Nmesh);
+z_init(5,:) = zeros(1,params.control.swingup.TPBVP.Nmesh);
+z_init(6,:) = zeros(1,params.control.swingup.TPBVP.Nmesh);
+z_init(7,:) = zeros(1,params.control.swingup.TPBVP.Nmesh);
+z_init(8,:) = zeros(1,params.control.swingup.TPBVP.Nmesh);
 
 % initial guess (terminal time):
-z_init(9,:) = ones(1,Nmesh);
+z_init(9,:) = ones(1,params.control.swingup.TPBVP.Nmesh);
+
+tmesh = linspace(0,1,params.control.swingup.TPBVP.Nmesh); % dimensionless time
 
 solinit.x = tmesh;
 solinit.y = z_init;
 
 % Solve the TPBVP:
-sol4c = bvp4c(@(t,z) tpbvp_ode(t,z,params), @(t,z) tpbvp_bc(t,z,params), ...
+sol4c = bvp4c(@(t,z) tpbvp_ode(t,z,params),...
+    @(z0,zT) tpbvp_bc(z0,zT,params),...
     solinit, opts);
 % sol5c = bvp5c();
 
