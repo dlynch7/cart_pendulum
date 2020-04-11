@@ -164,7 +164,7 @@ fprintf('Done passive simulation.\n');
 opts_free = bvpset('RelTol',0.1,'AbsTol',0.1*ones(1,9),'Stats','on');
 
 % free time is scaled to dimensionless fixed time:
-tmesh_free = linspace(0,2,params.control.swingup.TPBVP.Nmesh);
+tmesh_free = linspace(0,1,params.control.swingup.TPBVP.Nmesh);
 
 % initial guess: configuration changes linearly in time, roughly constant
 % velocities, costate ???
@@ -183,13 +183,13 @@ z_free_init(4,:) = [x_IC(4),...
     params.control.inverted.x_eq(4)];
 
 % initial guess (robot costate):
-z_free_init(5,:) = zeros(1,params.control.swingup.TPBVP.Nmesh);
+z_free_init(5,:) = ones(1,params.control.swingup.TPBVP.Nmesh);
 z_free_init(6,:) = ones(1,params.control.swingup.TPBVP.Nmesh);
 z_free_init(7,:) = ones(1,params.control.swingup.TPBVP.Nmesh);
 z_free_init(8,:) = ones(1,params.control.swingup.TPBVP.Nmesh);
 
 % initial guess (terminal time):
-z_free_init(9,:) = 3*ones(1,params.control.swingup.TPBVP.Nmesh);
+z_free_init(9,:) = 2*ones(1,params.control.swingup.TPBVP.Nmesh);
 
 solinit_free.x = tmesh_free;
 solinit_free.y = z_free_init;
