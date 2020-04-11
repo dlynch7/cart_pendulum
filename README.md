@@ -6,5 +6,4 @@ Application entry point is `main.m`, which calls (through wrapper functions) dyn
 
 `derive_equations.m` uses symbolic computation to generate the state-space dynamics of the cart-pendulum, which are then exported as MATLAB functions (e.g., `autogen_drift_vector_field.m` and `autogen_control_vector_field.m`).
 
-If necessary, symbolic math related to controller design can also be implemented in `derive_equations.m`, but this has not been done yet.
-
+Additional symbolic math related to optimal swingup control is also implemented in `derive_equations.m`.
